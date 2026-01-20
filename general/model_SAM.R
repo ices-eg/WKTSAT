@@ -1,1 +1,31 @@
+# Run SAM, write model results
+
+# Before: data/assessment_inputs.RData
+# After: model/assessment/fit.RData
+
 library(icesTAF)
+library(stockassessment)
+
+mkdir("model/assessment")                                                      ## create subfolder in model folder to store assessment
+
+load("data/assessment_inputs.RData")                                           ## ouput from stockassessment::setup.sam.data()
+
+cfg_in_boot <- T                                                               ## boolean: is there a configuration file in the TAF repo
+cfg_path    <- "boot/data/sam_config/model.cfg"                                ## path to the cfg file
+
+if(cfg_in_boot){
+  cfg <- loadConf(data, "boot/data/sam_config/model.cfg", patch = TRUE)         
+} else {
+  # create conf object
+  cfg <- defcon(data)
+  # and adjust accordingly (see help(sam.fit))
+}
+
+# define initial parameters
+par <- defpar(data, cfg)
+
+# fit SAM model
+fit   <- sam.fit(data, cfg, par) 
+
+# save SAM model as RData file in model folder
+save(fit, file = "model/fit.RData")
