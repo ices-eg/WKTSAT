@@ -18,13 +18,15 @@ mkdir("data")
 
 # write out
 
-### ============================================================================
-### Read the input data
-### ============================================================================
 
 read.ices.taf <- function(...) {
   read.ices(taf.data.path(...))
 }
+
+### ============================================================================
+### Read the input data
+### ============================================================================
+
 
 ## Catch numbers at age
 catage    <- read.ices.taf("cn.dat")
@@ -88,60 +90,21 @@ STK@catch          <- computeCatch(STK)
 STK@landings       <- computeLandings(STK)
 STK@discards       <- computeDiscards(STK)
 
+# Handle ICES missing value convention
 STK@catch.n[STK@catch.n == -1] <- NA
 
+# Set units
 units(STK)[1:17] <- as.list(c(rep(c("tonnes","thousands","kg"),4),
                              rep("NA",2),"f",rep("NA",2)))
 
+# Set stock metadata
 STK@name <- paste0("STOCK_FLSAM_", range(STK)["maxyear"] + 1)
 range(STK)[c("minfbar","maxfbar")] <- c(6, 14)
 
 
-### ============================================================================
-### Setup FLStock object
-### ============================================================================
-
-dmns <- FLQuant(NA, dimnames = list(
-  age    = colnames(catage),
-  year   = rownames(catage),
-  unit   = "unique",
-  season = "all",
-  area   = "unique",
-  iter   = 1
-))
-
-STK <- FLStock(m = dmns)
-
-STK@catch.n[]      <- t(catage)
-STK@landings.n[]   <- t(catage)
-STK@discards.n[]   <- 0
-
-STK@catch.wt[]     <- t(wcatch)
-STK@discards.wt[]  <- t(wdiscards)
-STK@landings.wt[]  <- t(wlandings)
-
-STK@mat[]          <- t(maturity)
-STK@m[]            <- t(natmort)
-
-STK@harvest.spwn[] <- t(propf)
-STK@m.spwn[]       <- t(propm)
-
-STK@stock.wt[]     <- t(wstock)
-
-STK@catch          <- computeCatch(STK)
-STK@landings       <- computeLandings(STK)
-STK@discards       <- computeDiscards(STK)
-
-STK@catch.n[STK@catch.n == -1] <- NA
-
-units(STK)[1:17] <- as.list(c(rep(c("tonnes","thousands","kg"),4),
-                             rep("NA",2),"f",rep("NA",2)))
-
-STK@name <- paste0("STOCK_FLSAM_", range(STK)["maxyear"] + 1)
-range(STK)[c("minfbar","maxfbar")] <- c(6, 14)
 
 ### ============================================================================
-### Setup FLIndices
+### Setup FLIndices (tuning fleets)
 ### ============================================================================
 
 STK.tun <- FLIndices()
