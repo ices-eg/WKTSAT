@@ -28,4 +28,4 @@ par <- defpar(data, cfg)
 fit   <- sam.fit(data, cfg, par) 
 
 # save SAM model as RData file in model folder
-save(fit, file = "model/fit.RData")
+save(fit, file = "model/assessment/fit.RData")
