@@ -10,11 +10,10 @@ mkdir("model/assessment")                                                      #
 
 load("data/assessment_inputs.RData")                                           ## ouput from stockassessment::setup.sam.data()
 
-cfg_in_boot <- T                                                               ## boolean: is there a configuration file in the TAF repo
-cfg_path    <- "boot/data/sam_config/model.cfg"                                ## path to the cfg file
+cfg_path    <-"boot/data/sam_config/model.cfg"                                 ## path to the cfg file
 
-if(cfg_in_boot){
-  cfg <- loadConf(data, "boot/data/sam_config/model.cfg", patch = TRUE)         
+if(file.exists(cfg_path)){
+  cfg <- loadConf(data, cfg_path, patch = TRUE)         
 } else {
   # create conf object
   cfg <- defcon(data)
