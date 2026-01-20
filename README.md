@@ -10,3 +10,16 @@ Examples include, running a model, running a retropsective, create the SAG outpu
 
 * Start from RDBES / Intercatch files
 * Preformed survey indices
+
+
+## Developers:
+
+* model_SS3.R - Laura
+* data_SAM.R - Sofie
+* output_SAG.R - Jean-Baptiste
+* model_forecast - Klaas
+* model_SAM.R - Klaas
+* model_retrospective - Jean-Baptiste
+* report_wg_presentation - Colin
+* data_FLSAM.R - Petur
+
