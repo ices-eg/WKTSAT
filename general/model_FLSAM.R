@@ -1,5 +1,3 @@
-library(icesTAF)
-
 ## Run FLSAM model, write model results
 
 ## Before:
