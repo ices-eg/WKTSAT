@@ -8,6 +8,7 @@ library(icesTAF)
 library(stockassessment)
 
 ## housekeeping
+mkdir("model/forecast")
 
 # load assessment model 
 load(file = "model/assessment/fit.RData")                                      ## load SAM model
