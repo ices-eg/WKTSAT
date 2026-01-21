@@ -10,7 +10,7 @@ Examples include, running a model, running a retropsective, create the SAG outpu
 
 * Start from RDBES / Intercatch files
 * Preformed survey indices
-
+* ss ctrl files
 
 ## Developers:
 
@@ -23,3 +23,10 @@ Examples include, running a model, running a retropsective, create the SAG outpu
 * report_wg_presentation - Colin
 * data_FLSAM.R - Petur
 
+Additional tasks:
+
+* investigate stockplotr:: convert_output, create_rda
+* investigate dev containers
+
+Consider scripts -> functions, candidates are:
+* output_SAG.R
