@@ -1,0 +1,12 @@
+# TAF template for a SAM assessment
+
+## note to developers
+before modifying these scripts please update renv packages:
+```r
+renv::update()
+renv::snapshot()
+```
+
+note that the renv folder and lockfile are located in the boot folder.
+
+This is a template for a Stock Assessment Model (SAM) assessment using the TAF (Transparent Assessment Framework). It provides a structured approach to conducting stock assessments, ensuring transparency and reproducibility.
