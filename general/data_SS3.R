@@ -30,7 +30,7 @@ library(r4ss)
 mkdir("data")
 
 # Read model files --------------------------------------------------------------
-inputs <- r4ss::SS_read(dir = "boot/data", verbose = TRUE)
+inputs <- r4ss::SS_read(dir = "boot/initial/data/ss3_data", verbose = TRUE)
 
 # Prepare TAF tables ------------------------------------------------------
 # the selection of data to save in the form of CSV should be user defined

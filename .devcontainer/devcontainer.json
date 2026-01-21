@@ -1,13 +1,8 @@
 {
-  "name": "R (rocker/tidyverse)",
+  // https://rocker-project.org/images/devcontainer/features.html
+  "name": "TAF dev",
   "image": "ghcr.io/rocker-org/devcontainer/tidyverse:4.3",
   "features": {
-    "ghcr.io/rocker-org/devcontainer-features/quarto-cli:1": {
-      "installTinyTex": true
-    },
-    "ghcr.io/rocker-org/devcontainer-features/r-packages:1": {
-      "packages": "tinytex",
-      "installSystemRequirements": true
-    }
+    "ghcr.io/rocker-org/devcontainer-features/renv-cache:0": {}
   }
 }
