@@ -156,3 +156,9 @@ data.stock <-
 
 # Save the SAM data object
 saveRDS(data.stock, file = "data/data.stock.rds")
+
+# ====================================================================
+# Write out files for report
+# ====================================================================
+
+# have to decide on a consistent way to do this

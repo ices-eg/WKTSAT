@@ -7,4 +7,6 @@ library(TAF)
 
 mkdir("model")
 
-source("model_SAM.R")
+source("model_assessment_SAM.R")
+
+# source("model_forecast_SAM.R")

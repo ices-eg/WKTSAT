@@ -1,12 +1,21 @@
+# ===============================================================================
+# Prepare intercatch data for SAM assessment
+# Authors: participants of workshop on the validation of new tool for refpts
+#     Sofie Nimmegeers (ILVO) <sofie.nimmegeers@ilvo.vlaanderen.be>
+#     Klaas Sys (ILVO) <klaas.sys@ilvo.vlaanderen.be>
+#
+# Distributed under the terms of the MIT
+# ===============================================================================
+
 # Run SAM, write model results
 
 # Before: data/data.stock.rds
-# After: model/fit.rds
+# After: model/assessment/fit.rds
 
 library(icesTAF)
 library(stockassessment)
 
-mkdir("model")
+mkdir("model/assessment")
 
 # ====================================================================
 # Load data
@@ -73,4 +82,4 @@ fit <- sam.fit(data, cfg, par)
 fit$opt$convergence # zero
 fit$opt$message # "relative convergence (4)"
 
-saveRDS(fit, file = "model/fit.rds")
+saveRDS(fit, file = "model/assessment/fit.rds")
