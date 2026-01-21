@@ -7,6 +7,7 @@
 
 # load libraries
 library(icesTAF)
+library(stockassessment)
 
 # load data
 file_names<-c("dn.txt","dw.txt","la.txt", "ln.txt", "lw.txt", "mo.txt","nm.txt","pf.txt","pm.txt","sw.txt")
@@ -22,7 +23,7 @@ stock_data     <- lapply(file_names[1:10], read.ices.from.disk, stock_input_path
 # DISCARDS - Calculate SOP factor and sopcorrect
 subdis <- stock_data$dn*stock_data$dw
 subdis2 <- rowSums(subdis)
-sopdis <- subdis2/stock_data_dis$di[,1]            #gives SOP factor per year 
+sopdis <- subdis2/stock_data_dis$di[,1]            #gives SOP factor per year
 stock_data$dn <- sweep(stock_data$dn,1,sopdis,"/")        #sop correct the numbers at age
 
 subdis <- (stock_data$dn*stock_data$dw)
@@ -32,7 +33,7 @@ test<-subdis2/stock_data_dis$di[,1]
 # LANDINGS - Calculate SOP factor and sopcorrect
 sublan <- stock_data$ln*stock_data$lw
 sublan2 <- rowSums(sublan)
-soplan <- sublan2/stock_data$la[,1]            #gives SOP factor per year 
+soplan <- sublan2/stock_data$la[,1]            #gives SOP factor per year
 stock_data$ln <- sweep(stock_data$ln,1,soplan,"/")        #sop correct the numbers at age
 
 sublan <- (stock_data$ln*stock_data$lw)
@@ -58,13 +59,13 @@ sam_data$lw[,plus_group] <- rowSums(stock_data$lw[,plus_group:ncol(stock_data$lw
 
 stock_data$cn            <- stock_data$ln + stock_data$dn
 stock_data$cw            <- (stock_data$dw * stock_data$dn + stock_data$lw * stock_data$ln) / (stock_data$dn + stock_data$ln)
-stock_data$cw[is.na(stock_data$cw)] <- stock_data$lw[is.na(stock_data$cw)]       
+stock_data$cw[is.na(stock_data$cw)] <- stock_data$lw[is.na(stock_data$cw)]
 sam_data$cn              <- stock_data$cn[,min_age:plus_group]
 sam_data$cn[,plus_group] <- rowSums(stock_data$cn[,plus_group:ncol(stock_data$cn)])
 sam_data$cw              <- stock_data$cw[,min_age:plus_group]
 sam_data$cw[,plus_group] <- rowSums(stock_data$cw[,plus_group:ncol(stock_data$cw)]  * sweep(stock_data$cn[,plus_group:ncol(stock_data$cn)],1, FUN = "/", rowSums(stock_data$cn[,plus_group:ncol(stock_data$cn)],na.rm = T)),na.rm = T)
 
-sam_data$sw              <- stock_data$sw[,min_age:plus_group]  
+sam_data$sw              <- stock_data$sw[,min_age:plus_group]
 sam_data$sw[,plus_group] <- rowSums(stock_data$sw[,plus_group:ncol(stock_data$sw)]  * sweep(stock_data$cn[,plus_group:ncol(stock_data$cn)],1, FUN = "/", rowSums(stock_data$cn[,plus_group:ncol(stock_data$cn)],na.rm = T)),na.rm = T)
 
 sam_data$mo              <- stock_data$mo[,min_age:plus_group]
@@ -91,8 +92,5 @@ dat.stock     <- setup.sam.data(
   natural.mortality = sam_data$nm,       # natural mortality
   land.frac = sam_data$lf )              # landing proportion
 
-#Save the SAM data object 
+#Save the SAM data object
 save(dat.stock,file="data/data.RData")
-
-
-
