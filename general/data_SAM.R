@@ -19,6 +19,10 @@ read.ices.from.disk <- function(dat_extension, stock_input_path){
 
 stock_data     <- lapply(file_names[1:10], read.ices.from.disk, stock_input_path = file.path("boot/initial/data/"))
 
+file_names<-c("di.txt")
+names(file_names)  <- gsub(".txt","", file_names)
+stock_data_dis     <- lapply(file_names[1:1], read.ices.from.disk, stock_input_path = file.path("boot/initial/data/"))
+
 # SOP correction
 # DISCARDS - Calculate SOP factor and sopcorrect
 subdis <- stock_data$dn*stock_data$dw
