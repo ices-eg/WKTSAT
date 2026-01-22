@@ -1,11 +1,11 @@
-# ===============================================================================
+# ====================================================================
 # Prepare intercatch data for SAM assessment
 # Authors: participants of workshop on the validation of new tool for refpts
 #     Sofie Nimmegeers (ILVO) <sofie.nimmegeers@ilvo.vlaanderen.be>
 #     Colin Millar (ICES) <colin.millar@ices.dk>
 #
 # Distributed under the terms of the MIT
-# ===============================================================================
+# ====================================================================
 
 # Prepare data, write CSV data tables
 

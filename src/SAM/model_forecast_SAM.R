@@ -64,8 +64,8 @@ if (all(diff(Flast3) < 0) | all(diff(Flast3) > 0)) {
 
 nosim <- 10000
 year.base <- as.numeric(base.yr)
-ave.years <- max(fit$data$years) + (-4:0)
-rec.years <- max(fit$data$years) + (-9:0)
+ave.years <- max(fit$data$years) + (-4:0) # 5 years here, often 3 years TODO move to top of script as arguments, potentially report on this to the user. - check Sofie forecast script for table of settings
+rec.years <- max(fit$data$years) + (-9:0) # TODO move to top of script as arguments
 savesim <- T
 NA_vec <- rep(NA, length(year.base:as.numeric(advice.yrp1)))
 names(NA_vec) <- c(base.yr, int.yr, advice.yr, advice.yrp1)

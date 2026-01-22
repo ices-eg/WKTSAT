@@ -66,7 +66,6 @@ if(exists("cfg_path") && file.exists(cfg_path)) {
   # Coupling of correlation parameters can only be specified if the AR(1) structure is chosen above.
   # NA's indicate where correlation parameters can be specified (-1 where they cannot).
   cfg$keyCorObs[1, ] <- 0
-
 }
 
 # define initial parameters
