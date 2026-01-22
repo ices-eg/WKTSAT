@@ -31,8 +31,7 @@ plot(metsci)
 tabs <- metrics(stk, list(catch=catch, landings=landings, discards=discards,
   catch.n=catch.n, landings.n=landings.n, discards.n=discards.n,
   catch.wt=catch.wt, landings.wt=landings.wt, discards.wt=discards.wt,
-  stock.n=stock.n, stock.wt=stock.wt,
-  m=m, f=harvest, ssb=ssb, rec=rec))
+  stock.n=stock.n, stock.wt=stock.wt, m=m, f=harvest, ssb=ssb, rec=rec))
 
 tables <- lapply(tabs, as_flextable)
 

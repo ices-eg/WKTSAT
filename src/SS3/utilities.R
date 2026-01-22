@@ -9,14 +9,13 @@ setMethod("as_flextable", signature(x="FLQuant"),
 
     # ADD year column
     if(dim(x)[1] == 1) {
-      ft <- as.data.frame(cbind(year=dimnames(x)$year, t(df)))
-    }
-    else
+      ft <- data.frame(year=dimnames(x)$year, value=unlist(df))
+    } else {
       ft <- cbind(year=dimnames(x)$year, df)
+    }
 
     # CREATE flextable
     autofit(flextable(ft))
-
 })
 # }}}
 
