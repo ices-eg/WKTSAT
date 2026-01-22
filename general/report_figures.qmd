@@ -1,0 +1,270 @@
+
+
+```{r fig-n-at-age-year}
+#| label: fig-n-at-age-year
+#| fig-cap:  "!expr glue("{caption_prefix} Landings and discards number at age from 1984 to 2023")
+#| fig-height: 12
+plot_n_at_age_year  +   
+    theme(strip.text = element_text(size = 7),
+          strip.background = element_rect(colour = "black", size = 1))
+```
+
+```{r fig-catch-age}
+#| label: fig-catch-age
+#| fig-cap:  "!expr glue("{caption_prefix} Catch age distributions")
+ggplot(as.data.frame(catch.n(stock_input)), aes(year, as.factor(age), size = data)) +
+  geom_point(shape = 21, fill = "#0092D2", color = "black") +
+  scale_size(range = c(2, 10)) +
+  ylab("Age") + xlab("Year")
+```
+
+
+```{r fig-landings-age}
+#| label: fig-landings-age
+#| fig-cap:  "!expr glue("{caption_prefix} Landings age distributions")
+ggplot(as.data.frame(landings.n(stock_input)), aes(year, as.factor(age), size = data)) +
+  geom_point(shape = 21, fill = "#0092D2", color = "black") +
+  scale_size(range = c(2, 10)) +
+  ylab("Age") + xlab("Year")
+```
+
+
+```{r  fig-discards-age}
+#| label: fig-discards-age
+#| fig-cap:  "!expr glue("{caption_prefix} Discards age distributions")
+ggplot(as.data.frame(discards.n(stock_input)), aes(year, as.factor(age), size = data)) +
+  geom_point(shape = 21, fill = "#0092D2", color = "black") +
+  scale_size(range = c(2, 10)) +
+  ylab("Age") + xlab("Year")
+```
+
+```{r fig-discards-wt}
+#| label: fig-discards-wt
+#| fig-cap:  "!expr glue("{caption_prefix} Discards weights at age")
+df_discards_wt <- as.data.frame(stock_input@discards.wt) %>%
+  mutate(age = factor(age))
+
+ggplot(data = df_discards_wt, 
+       aes(x = year, y = data, color = age)) + 
+  geom_line() + 
+  geom_point() +
+  xlab("Year") + ylab("Mean discards weights")
+```
+
+```{r fig-landings-wt}
+#| label: fig-landings-wt
+#| fig-cap:  "!expr glue("{caption_prefix} Landings weights at age")
+df_landings_wt <- as.data.frame(stock_input@landings.wt) %>%
+  mutate(age = factor(age))
+
+ggplot(data = df_landings_wt, 
+       aes(x = year, y = data, color = age)) + 
+  geom_line() + 
+  geom_point() +
+  xlab("Year") + ylab("Mean landings weights")
+```
+
+```{r fig-catchs-wt}
+#| label: fig-catch-wt
+#| fig-cap:  "!expr glue("{caption_prefix} Catch weights at age")
+df_catch_wt <- as.data.frame(stock_input@catch.wt) %>%
+  mutate(age = factor(age))
+
+ggplot(data = df_catch_wt, 
+       aes(x = year, y = data, color = age)) + 
+  geom_line() + 
+  geom_point() +
+  xlab("Year") + ylab("Mean catch weights")
+```
+
+```{r fig-stocks-wt}
+#| label: fig-stocks-wt
+#| fig-cap:  "!expr glue("{caption_prefix} Stock weights at age")
+df_stock_wt <- as.data.frame(stock_input@stock.wt) %>%
+  mutate(age = factor(age))
+
+ggplot(data = df_stock_wt, 
+       aes(x = year, y = data, color = age)) + 
+  geom_line() + 
+  geom_point() +
+  xlab("Year") + ylab("Mean stock weights")
+```
+
+
+```{r TSCPUELPUE-OTT}
+#| label: fig-lpue-trawler
+#| fig-cap: "!expr glue("{caption_prefix} Time series of standardised Fishable stock biomass index of the French trawler fleet")
+plot_sole_lpues_ott_otb <- ggplot(data = df_sole_lpues_ott_otb,
+                         aes(x = YEAR,
+                             y = CPUE_stdr,
+                             group = origin, 
+                             colour = origin)) +
+  geom_line() +
+  geom_point() +
+  geom_ribbon(aes(ymin = CPUE_stdr_low,
+                  ymax = CPUE_stdr_high,
+                  group = origin, 
+                  fill = origin),
+              alpha = 0.2) +
+  xlab("Year") +
+  ylab("LPUE") + 
+  theme(axis.text.x = element_text(angle = 90,
+                                   hjust = 1,
+                                   vjust = 0.5)) +
+  ylim(0, 2.5) +
+ theme(legend.position = "none")
+print(plot_sole_lpues_ott_otb)
+```
+
+
+```{r child-bts-viii, child = c(here("R", "orhago", "load_orhago_plots.Rmd")), eval = TRUE}
+```
+
+
+```{r TSCPUELPUE-BTSVIII}
+#| label: fig-bts-viii
+#| fig-cap: "!expr glue("{caption_prefix} Time series of standardised indices per age classes of the survey French BTS-VIII survey (B1706)")
+plot_sole_indices_bts_viii <-  ggplot(data = df_sole_indices_bts_viii,
+                                      aes(x = Year,
+                                          y = Estimate_stdr,
+                                          group = 1)) +
+  geom_line() +
+  geom_point() +
+  geom_ribbon(
+    aes(ymin = Estimate_stdr_low,
+        ymax = Estimate_stdr_high),
+    alpha = 0.25) +
+  facet_wrap(~Age, scales = "free_y") +
+  ylab("Normalized index") +
+  xlab("Year") +
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+        legend.direction = "vertical")
+print(plot_sole_indices_bts_viii)
+```
+
+```{r bts-viii-internal-cst}
+#| label: fig-bts-viii-internal-cst
+#| fig-cap: "!expr glue("{caption_prefix} Internal consistency of the survey indices of the French BTS-VIII survey (B1706)")
+flr_id_fr_bts_viii_consistency <- read_rds(here(path_data_tidy, "assessment", assessment_year, "output", "flr_id_fr_bts_viii_consistency.rds"))
+flr_id_fr_bts_viii_consistency
+```
+
+<!-- ####################################################################### -->
+<!-- Model results -->
+<!-- ####################################################################### -->
+
+```{r fig-SAM-data-plot}
+#| label: fig-SAM-dataplot
+#| fig-cap: "!expr glue("{caption_prefix} SAM model input")
+dataplot(fit_sam)
+```
+
+
+```{r SAMresiduals}
+#| label: fig-SAM-resids-process
+#| fig-cap: "!expr glue("{caption_prefix} Process residuals of the N (upper panel) and F (lower panel) model. Blue circles indicate a positive residual, red circles a negative residual")
+plot_residuals_process
+```
+
+```{r  fig-SAM-resids-obs}
+#| label: fig-SAM-resids-obs
+#| fig-cap: "!expr glue("{caption_prefix} One step ahead residuals by data source.")
+plot_residuals_obs
+```
+
+```{r  fig-SAM-resids-obs-summary}
+#| label: fig-SAM-resids-obs-summary
+#| fig-cap: "!expr glue("{caption_prefix} Summary plots of observation residuals")
+plot(residuals_obs,
+     type = "summary")
+```
+
+```{r fig-SAM-resids-process-summary}
+#| label: fig-SAM-resids-process-summary
+#| fig-cap: "!expr glue("{caption_prefix} Summary plots of process residuals of the log(N) (upper row) and log(F) (lower row) model")
+plot(residuals_process,
+     type = "summary")
+```
+
+```{r fig-SAM-fit-catch}
+#| label: fig-SAM-fit-catch
+#| fig-cap: "!expr glue("{caption_prefix} Model fit (line) to catch at age data (points)")
+fitplot(fit_sam, fleets = 1)  
+```
+
+```{r fig-SAM-fit-bts}
+#| label: fig-SAM-fit-bts
+#| fig-cap: "!expr glue("{caption_prefix} Model fit (line) to BTS-VIII index at age data (points)")
+fitplot(fit_sam, fleets = 2)  
+```
+
+```{r fig-SAM-fit-tuning-ott}
+#| label: fig-SAM-fit-tuning-ott
+#| fig-cap: "!expr glue("{caption_prefix} Model fit (line) to OTT-OTB FSB index (points)")
+fitplot(fit_sam, fleets = c(3, 4))  
+```
+
+```{r fig-SAM-observation-error}
+#| label: fig-SAM-observation-error
+#| fig-cap: "!expr glue("{caption_prefix} Observation errors for each data input using the final SAM configuration")
+plot_observation_error
+```
+
+```{r fig-SAM-f-at-age}
+#| label: fig-SAM-f-at-age
+#| fig-cap: "!expr glue("{caption_prefix} Fishing mortality at age as estimated by the SAM assessment; Note that ages 7 and 8+ overlap.")
+plot_f_at_age
+```
+
+```{r SAMretro}
+#| label: fig-SAM-retro
+#| fig-cap: !expr glue("{caption_prefix} Retrospective analysis (up to five years) of SSB (upper, Mohn’s rho = {filter(df_mohn_roh, Variable == 'SSB') %>% pull(Value)}), Fbar (middle, Mohn’s rho = {filter(df_mohn_roh, Variable == 'Fbar(3-7)') %>% pull(Value)}), and recruitment (lower, Mohn’s rho = {filter(df_mohn_roh, Variable == 'R(age 2)') %>% pull(Value)})")
+plot_retro_analysis
+```
+
+```{r SAMtrend}
+#| label: fig-SAM-summary
+#| fig-cap: "!expr glue("{caption_prefix} Trends for Landings, F, R, SSB and total catch data")
+plot_summary_ref
+```
+
+<!-- ----------------------------------------------------------------------- -->
+<!--                        Advice comparison                                -->
+<!-- ----------------------------------------------------------------------- -->
+
+```{r fig-stf-assumption-comparison}
+#| label: fig-stf-assumption-comparison
+#| fig-cap: !expr glue("{caption_prefix} Comparison of short-term forecast assumption between assessment year ({assessment_year}) and previous assessment ({data_year})")
+plot_stf_assumptions_comparison
+```
+
+```{r fig-plot-n-at-age-comparison}
+#| label: fig-plot-n-at-age-comparison
+#| fig-cap: !expr glue("{caption_prefix} Ratio of estimated number-at-age from {assessment_year} assessment to {data_year} assessment.")
+list_plot_comparison_at_age$plot_n_at_age_comparison
+```
+
+```{r fig-plot-w-at-age-comparison}
+#| label: fig-plot-w-at-age-comparison
+#| fig-cap: !expr glue("{caption_prefix}  Ratio of estimated weight-at-age from {assessment_year} assessment to {data_year} assessment.")
+list_plot_comparison_at_age$plot_w_at_age_comparison
+```
+
+```{r fig-plot-B-at-age-comparison}
+#| label: fig-plot-B-at-age-comparison
+#| fig-cap: !expr glue("{caption_prefix}  Ratio of estimated biomass-at-age from {assessment_year} assessment to {data_year} assessment.")
+list_plot_comparison_at_age$plot_B_at_age_comparison
+```
+
+```{r fig-plot-assessment-comparison}
+#| label: fig-plot-assessment-comparison
+#| fig-cap: !expr glue("{caption_prefix} Summary plot of the 2024 SAM assessment (yellow) and 2023 XSA assessment (blue) showing catch (landings for XSA) spawning stock biomass, fishing mortality and recruitment. For SAM model the shaded areas represent the 95% confidence bounds.")
+plot_summary_comparison_ribbon <- readRDS(here(path_data_tidy,
+                            "assessment", 
+                            assessment_year,
+                            glue("comparison_{assessment_year - 1}_{assessment_year}"),
+                            "plot_summary_comparison_ribbon.rds"))
+plot_summary_comparison_ribbon
+```

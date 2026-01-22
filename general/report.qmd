@@ -1,0 +1,186 @@
+---
+title: "Chapter report for stock XX"
+date: "May `r format(Sys.Date(), '%Y')` (updated: `r Sys.Date()`)"
+lang: en
+format: docx
+editor: source
+number-sections: true
+crossref:
+  chapters: true
+---
+
+
+```{r, general_variable,  include = FALSE}
+library("here")
+library("icesTAF")
+library("icesAdvice")
+library("FLCore")
+library("tidyverse")
+library("flextable")
+
+assessment_year <-  as.numeric(format(Sys.time(), "%Y"))
+data_year <- assessment_year - 1
+
+#knitr option
+knitr::opts_chunk$set(
+  include = TRUE,        
+  echo = FALSE,
+  cache = FALSE,
+  warning = FALSE,
+  message = FALSE,
+  progress = FALSE,
+  verbose = FALSE,
+  # dev = 'png',
+  fig.height = 8,
+  fig.width = 8,
+  dpi = 300,
+  # out.width = 700,
+  # out.height = 550,
+  # fig.retina = 1,
+  autodep = FALSE,
+  knitr.duplicate.label = 'allow')
+
+options(scipen = 999)
+
+in_tonnes <- function(x){
+  prettyNum(x, big.mark = " ")
+}
+
+round_tonnes <- function(x){
+  round(x, digits = -2)
+}
+caption_prefix <- "Bay of Biscay sole (S. solea) in divisions 8.a and 8.b."
+```
+
+```{r, load-data-output,  include = FALSE}
+# here load data, model fit and outputs to make figures and tables
+``` 
+
+#	Stock XX
+
+## General
+
+### Type of assessment in `r assessment_year`
+
+### Ecosystem aspects
+
+### Fisheries
+
+### Summary of ICES advice for  `r assessment_year -2` and Management regulations
+
+#### ICES advice for  `r assessment_year - 1` (as extracted from ICES Advice `r assessment_year -2`)
+
+#### Management applicable for `r assessment_year - 1` and `r assessment_year`
+
+#### Additional information provided by the fishing industry
+
+## Data
+
+### Catches
+
+#### ICES catch estimates (InterCatch)
+
+#### Reconstruction of discards
+
+#### Numbers-at-age
+
+Catch, landings and discards numbers-at-age are shown in @fig-n-at-age-year, @fig-catch-age, @fig-landings-age, fig-discards-age and @tbl-catch-age.
+
+#### Weight-at-age
+
+Weights-at-age for discards and landings are shown in @fig-discards-wt and @fig-landings-wt respectively and
+weights-at-age in the catch are given in Figure @fig-catch-wt and @tbl-catch-wt.
+
+### Stock weight-at-age
+
+Stock weights-at-age are shown in @fig-stocks-wt and @tbl-stock-wt. 
+
+### Maturity and natural mortality
+
+#### Maturity
+
+(see Stock Annex, @tbl-maturity).
+
+#### Natural mortality
+
+The final values of natural mortality used in the stock assessment model are listed in @tbl-M.
+
+## Tuning series
+
+### French BTS-VIII surveys index
+
+Figures @fig-bts-viii and @tbl-index-bts-viii provide the index used as input in the stock assessment model.
+ @fig-bts-viii-internal-cst provides cohort consistencies, which shows that the index tracks well the cohorts.
+
+
+### French commercial otter trawl LPUE index
+
+@tbl-lpue-trawler and @fig-lpue-trawler provide the index used as input in the stock assessment model. 
+
+## Assessment
+
+### Input data
+
+Details on the preparation of input data for the stock assessment are provided in stock annex. 
+@fig-SAM-dataplot shows the different time series used in the model.
+
+### Model
+
+R codes used to produced run the model, extract results and perform forecasts are available within the Transparent Assessment Framework (TAF, https://github.com/ices-taf/2024_sol.27.8ab_assessment.git).
+The full description of the SAM configuration file is provided in @tbl-sam-conf-file.
+
+### Assessment results
+
+The SAM model fitting diagnostics and survey catchabilities are shown in @tbl-sam-diag-fit and @tbl-catchability-index respectively.
+The assessment summary is given in @tbl-summary-conf and @fig-SAM-summary.
+
+The F-at-age shows that the selectivity of the fishery changed over time  (@tbl-Fatage and @fig-SAM-f-at-age).
+
+The process residuals do not indicate any major problems with respect to the model configuration @fig-SAM-resids-process and @fig-SAM-resids-process-summary.
+
+The one step ahead residuals for the catch, BTS-VIII and French Trawler LPUE data do not indicate strong patterns across ages and years  @fig-SAM-resids-obs and @fig-SAM-resids-obs-summary.
+
+The retrospective pattern shows a good estimation of F, SSB for `r assessment_year - 3` data @fig-SAM-retro.
+The @tbl-MohnRho gives the results of the Mohn’s rho calculation that is the results from the most recent assessments and five retrospective assessments with terminal years (`r assessment_year - 5`–`r assessment_year - 1 `).
+Mohn’s Rho value is `r  filter(tab_mohn_roh, Variable == "R(age 2)") %>% pull(Value)` for the recruits, `r filter(tab_mohn_roh, Variable == "SSB") %>% pull(Value)` for SSB and `r filter(tab_mohn_roh, Variable == "Fbar(3-7)") %>% pull(Value)` for F.
+
+### Historical stock trends
+
+Trends in catch, SSB, Fbar and recruitment are presented in @tbl-summary-conf and @fig-SAM-summary.
+
+### Short term forecast
+
+The STF parameters for intermediate years are available in @tbl-stf-parameter and the results of the STF using different scenarios are presented in @tbl-management.
+
+### Biological reference points
+
+### Quality of the assessment
+
+#### Comparison with last advice
+
+Short-term forecast assumptions comparison for `r assessment_year` and `r data_year` are provided in @fig-stf-assumption-comparison.
+For each variable used in forecasts (Fbar, Recruitment, SSB and Total catch) changes are observed between `r assessment_year` and `r data_year`.
+
+@fig-plot-n-at-age-comparison and @fig-plot-w-at-age-comparison show the ratio of the number-at-age and weights-at-age estimated in `r assessment_year` and `r data_year`.
+@fig-plot-B-at-age-comparison shows the biomass at age between the two assessments.
+
+### Benchmark issue list
+
+#### Data issues
+
+#### Assessment issues
+
+#### Short-term forecast issues
+
+### Management considerations
+
+## References
+
+
+### Tables and figures
+
+```{r child = here("R", "report", "report_tables.qmd"), eval = TRUE}
+```
+
+```{r child = here("R", "report", "report_figures.qmd"), eval = TRUE}
+```

@@ -1,0 +1,263 @@
+
+
+
+```{r tbl-1a}
+#| label: tbl-1a
+#| tbl-cap: "!expr glue("{caption_prefix} Internationals landings and catches used by the Working Group (in tonnes).")
+if (print_table_7_1) {
+   table_7_1 %>%
+    fontsize(size = 7) %>%
+    fontsize(part = "header", size = 5) %>%
+    colformat_double(big.mark = "", digits = 0) %>%
+    autofit()
+}
+```
+
+\pagebreak
+
+```{r tbl-1b, eval = FALSE, include=FALSE}
+#| label: tbl-1b
+#| tbl-cap: "!expr glue("{caption_prefix} Contribution (in %) to the total landings by differents fleets.")
+if (print_table_7_1b) {
+
+  table_7_1b <- table_7_1b %>%
+    flextable() %>%
+    fontsize(size = 7) %>%
+    fontsize(part = "header", size = 5) %>%
+    colformat_double(big.mark = "", digits = 0) %>%
+    autofit()
+
+  table_7_1b
+}
+```
+
+
+```{r tbl-maturity}
+#| label: tbl-maturity
+#| tbl-cap: "!expr glue("{caption_prefix} Proportion of maturity at age")
+t(data_sam$propMat[1, ]) %>%
+  as.data.frame() %>%
+  flextable() %>%
+  autofit()
+```
+
+```{r tbl-M, eval=TRUE}
+#| label: tbl-M
+#| tbl-cap: "!expr glue("{caption_prefix} Natural mortality at age")
+t(round(data_sam$natMor[1, ], digits = 2)) %>%
+  as.data.frame() %>%
+  flextable() %>%
+  autofit()
+```
+
+\pagebreak
+
+```{r tbl-catch-age}
+#| label: tbl-catch-age
+#| tbl-cap: "!expr glue("{caption_prefix} Catch number at age")
+
+table_catch_n <- (t(matrix(round(stock_input@catch.n, 0),
+                           dims(stock_input@catch.n)$age,
+                           dimnames = list(age = dims(stock_input@stock.n)$min:dims(stock_input@stock.n)$max,
+                                           year = dims(stock_input@stock.n)$minyear:dims(stock_input@stock.n)$maxyear))))
+
+table_catch <- as.data.frame(table_catch_n) %>%
+  mutate(year = row.names(table_catch_n))  %>%
+  select(year, everything())
+
+table_catch <- table_catch %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  colformat_double(big.mark = "", digits = 0) %>%
+  autofit()
+table_catch
+```
+
+\pagebreak
+
+```{r tbl-catch-wt}
+#| label: tbl-catch-wt
+#| tbl-cap: "!expr glue("{caption_prefix} Catch weight at age (in kg)")
+table_catch_w <- (t(matrix(round(stock_input@catch.wt, 3), dims(stock_input@catch.wt)$age,
+                           dimnames = list(age = dims(stock_input@stock.n)$min:dims(stock_input@stock.n)$max,
+                                           year = dims(stock_input@stock.n)$minyear:dims(stock_input@stock.n)$maxyear))))
+
+table_catch_w <- as.data.frame(table_catch_w) %>%
+  mutate(year = row.names(table_catch_w)) %>%
+  select(year, everything())
+
+table_catch_w <- table_catch_w %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+
+table_catch_w
+```
+
+\pagebreak
+
+```{r tbl-stock-wt}
+#| label: tbl-stock-wt
+#| tbl-cap: "!expr glue("{caption_prefix} Stock weight at age (in kg)")
+table_stock_w <- (t(matrix(round(stock_input@stock.wt, 3), dims(stock_input@stock.wt)$age,
+                           dimnames = list(age = dims(stock_input@stock.n)$min:dims(stock_input@stock.n)$max,
+                                           year = dims(stock_input@stock.n)$minyear:dims(stock_input@stock.n)$maxyear))))
+
+table_stock_w <- as.data.frame(table_stock_w) %>%
+  mutate(year = row.names(table_stock_w)) %>%
+  select(year, everything())
+
+table_stock_w <- table_stock_w %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+
+table_stock_w
+```
+
+```{r tbl-index-bts-viii}
+#| label: tbl-index-bts-viii
+#| tbl-cap: "!expr glue("{caption_prefix} Time series of standardised indices per age classes of the survey French BTS-VIII survey (B1706).")
+
+sole_indices_bts_viii  %>%
+  as.data.frame() %>%
+  rownames_to_column(., var = "Year") %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+```
+
+```{r tbl-lpue-trawler}
+#| label: tbl-lpue-trawler
+#| tbl-cap: "!expr glue("{caption_prefix} Time series of standardised Fishable stock biomass index of the French trawler fleet.")
+
+sole_lpues_ott_otb  %>%
+  as.data.frame() %>%
+  rownames_to_column(., var = "Year") %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+```
+
+<!-- ####################################################################### -->
+<!-- Model results -->
+<!-- ####################################################################### -->
+
+```{r tbl-sam-conf-file}
+#| label: tbl-sam-conf-file
+#| tab-cap: "!expr glue("{caption_prefix} SAM model configuration of the assessment.")
+print(conf_sam)
+```
+
+```{r tbl-sam-diag-fit}
+#| label: tbl-sam-diag-fit
+#| tab-cap: "!expr glue("{caption_prefix} SAM model fitting diagnostics of the assessment.")
+
+diag_fit <- modeltable(fit_sam) %>%
+  as.data.frame() %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+diag_fit
+```
+
+```{r tbl-summary-conf}
+#| label:  tbl-summary-conf
+#| tbl-cap: "!expr glue("{caption_prefix} Assessment summary.  Weights are in tonnes, recruitment in thousands.")
+
+df_summuary_table_conf  %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+```
+
+```{r tbl-catchability-index}
+#| label: tbl-catchability-index
+#| tbl-cap: "!expr glue("{caption_prefix} SAM model index catchability of the assessment.")
+
+df_catchability <- data.frame(Estimats = coef(fit_sam)[names( coef(fit_sam)) == "logFpar"],
+                              SD = attr(coef(fit_sam),"sd")[names(coef(fit_sam)) == "logFpar"],
+                              Age = conf$keyLogFpar[2, 1:length(coef(fit_sam)[names( coef(fit_sam)) == "logFpar"])] + 2,
+                              Index = c(rep("FR BTS VIII", 5), "FR TRAWLER"))
+
+df_catchability$Age[5] <- "6 7" ## BTS-VIII age 6 and 7 share the same Q
+df_catchability$Age[6] <- "FSB" ## No age for FR-TRAWLER but a FSB index
+df_catchability  %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+```
+
+```{r tbl-MohnRho}
+#| label: tbl-MohnRho
+#| tbl-cap: "!expr glue("{caption_prefix} Mohn's Rho tables for R, SSB and R")
+tab_mohn_roh <- tab_mohn_roh %>%
+  flextable() %>%
+  fontsize(size = 7) %>%
+  fontsize(part = "header", size = 5) %>%
+  autofit()
+tab_mohn_roh
+```
+
+```{r tbl-Fatage}
+#| label: tbl-Fatage
+#| tab-cap: "!expr glue("{caption_prefix} Fishing mortality (F) at age for the SAM assessment.")
+
+table_fatage <- (t(matrix(round(sam_ass_stock@harvest, 3), dims(sam_ass_stock@harvest)$age,
+                          dimnames = list(age = dims(sam_ass_stock@stock.n)$min:dims(sam_ass_stock@stock.n)$max,
+                                          year = dims(sam_ass_stock@stock.n)$minyear:dims(sam_ass_stock@stock.n)$maxyear))))
+
+table_fatage <- as.data.frame(table_fatage) %>%
+  kableExtra::kable()
+
+table_fatage
+```
+
+```{r tbl-natage}
+#| label: tbl-natage
+#| tab-cap: "!expr glue("{caption_prefix} Stock number at age (start of year) Numbers*10**-3")
+
+table_natage <- (t(matrix(round(sam_ass_stock@stock.n, 3), dims(sam_ass_stock@stock.n)$age,
+                          dimnames = list(age = dims(sam_ass_stock@stock.n)$min:dims(sam_ass_stock@stock.n)$max,
+                                          year = dims(sam_ass_stock@stock.n)$minyear:dims(sam_ass_stock@stock.n)$maxyear))))
+
+table_natage <- as.data.frame(table_natage) %>%
+  mutate(year = row.names(table_natage)) %>%
+  select(year, everything()) %>%
+  mutate_if(is.numeric, round, digits = 0)
+
+table_natage <- table_natage %>%
+  kableExtra::kable()
+
+table_natage
+```
+
+```{r tbl-ssb}
+#| label: tbl-ssb
+#| tab-cap: "!expr glue("{caption_prefix} Spawning stock biomass (SSB; tonnes) at age for the 2024 SAM assessment.")
+
+df_ssb %>%
+  flextable()
+```
+
+```{r tbl-stf-parameter}
+#| label: tbl-stf-parameter
+#| tab-cap: "!expr glue("{caption_prefix} Assumptions made for the forecast.")
+stf_advice_assumptions_table %>%
+  kableExtra::kable()
+```
+
+```{r tbl-management}
+#| label: tbl-management
+#| tab-cap: "!expr glue("{caption_prefix} Annual catch scenarios. All weights are in tonnes.")
+stf_advice_table %>%
+  flextable()
+```
