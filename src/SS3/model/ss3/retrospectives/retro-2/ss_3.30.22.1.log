@@ -1,0 +1,186 @@
+
+Initial statistics: 9 variables; iteration 0; function evaluation 0; phase 1
+Function value 2.9328185e+03; maximum gradient component mag -5.8157e+04
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1  0.46350 -5.81565e+04 |  2 -0.03805  8.70034e+02 |  3  0.05811 -6.94542e+01
+  4 -0.57568 -2.92977e+02 |  5  0.03746 -1.21404e+02 |  6 -0.81425 -6.61253e+01
+  7 -0.13089  1.81196e+02 |  8 -0.20574  2.56608e+02 |  9 -0.29357 -7.30755e+01
+  ic > imax  in fminim is answer attained ?
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1 -3373.446  5.07065e+03 |  2 -1084925.88 -1.59865e+01 |  3 -1048233.81  1.35213e+03
+  4 1005229.39  1.79922e+03 |  5 -532008.26 -9.71298e+02 |  6 174192.11 -3.27791e+03
+  7 -94866.10  1.26411e+03 |  8 -175297.58  1.66174e+02 |  9 350037.38  4.75996e+02
+Function minimizer not making progress ... is minimum attained?
+Minimprove criterion = 0.0000e+00
+
+ - final statistics:
+9 variables; iteration 4; function evaluation 61
+Function value -nan; maximum gradient component mag 5.0707e+03
+Exit code = 1;  converg criter 1.0000e+01
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1 -3373.446  5.07065e+03 |  2 -1084925.88 -1.59865e+01 |  3 -1048233.81  1.35213e+03
+  4 1005229.39  1.79922e+03 |  5 -532008.26 -9.71298e+02 |  6 174192.11 -3.27791e+03
+  7 -94866.10  1.26411e+03 |  8 -175297.58  1.66174e+02 |  9 350037.38  4.75996e+02
+
+Initial statistics: 71 variables; iteration 0; function evaluation 0; phase 2
+Function value 6.4828364e+04; maximum gradient component mag -2.0296e+04
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1 -0.55415 -5.07065e+03 |  2  0.00000  6.02466e+00 |  3  0.00000  1.61507e+00
+  4  0.00000 -3.65603e+01 |  5  0.00000 -1.51672e+02 |  6  0.00000 -1.02896e+01
+  7  0.00000  1.86238e+01 |  8  0.00000  4.77834e+00 |  9  0.00000  1.56609e+02
+ 10  0.00000  2.45316e+02 | 11  0.00000 -2.27018e+02 | 12  0.00000  1.95243e+02
+ 13  0.00000  2.43764e+02 | 14  0.00000  2.21857e+02 | 15  0.00000 -2.19268e+01
+ 16  0.00000  1.66213e+02 | 17  0.00000  1.69073e+02 | 18  0.00000  1.20846e+02
+ 19  0.00000 -4.97201e+02 | 20  0.00000 -2.17894e+02 | 21  0.00000  1.40172e+02
+ 22  0.00000  1.79572e+02 | 23  0.00000  2.00776e+02 | 24  0.00000 -5.28899e+01
+ 25  0.00000  1.31932e+02 | 26  0.00000 -5.57946e+01 | 27  0.00000  1.22652e+02
+ 28  0.00000 -6.25981e+02 | 29  0.00000 -2.23698e+02 | 30  0.00000  1.30780e+02
+ 31  0.00000  5.42994e+01 | 32  0.00000 -8.73289e+02 | 33  0.00000 -1.33027e+02
+ 34  0.00000  2.97189e+02 | 35  0.00000  1.64586e+02 | 36  0.00000  8.60934e+01
+ 37  0.00000 -1.10171e+02 | 38  0.00000  5.42127e+01 | 39  0.00000  1.26591e+02
+ 40  0.00000 -3.88245e+01 | 41  0.00000 -2.19154e+02 | 42  0.00000  1.17972e+02
+ 43  0.00000 -2.07611e+02 | 44  0.00000 -4.06563e+02 | 45  0.00000  2.18657e+02
+ 46  0.00000 -1.76516e+01 | 47  0.00000 -6.46219e+02 | 48  0.00000  1.94576e+02
+ 49  0.00000  3.09298e+02 | 50  0.00000  1.84462e+02 | 51  0.00000  3.29058e+02
+ 52 -0.11768  1.59865e+01 | 53 -0.18674 -1.35213e+03 | 54  0.61100 -1.79922e+03
+ 55 -0.26256 -9.71298e+02 | 56  0.11455 -3.27791e+03 | 57  0.10494 -1.26411e+03
+ 58 -0.42353 -1.66174e+02 | 59  0.62181 -4.75996e+02 | 60  0.36766 -3.44703e+03
+ 61  0.11874 -1.50304e+04 | 62 -0.03885 -1.98487e+04 | 63 -0.10394  1.95900e+02
+ 64 -0.05254 -4.81615e+03 | 65  0.01554 -2.96435e+03 | 66 -0.00082 -1.31250e+04
+ 67 -0.02268 -8.00048e+03 | 68  0.14260 -2.02962e+04 | 69 -0.09802 -1.22781e+04
+ 70 -0.02162  2.35284e+01 | 71  0.09076  4.43709e+01 |
+  ic > imax  in fminim is answer attained ?
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1  0.65816  5.33470e+03 |  2 -0.00220  1.00668e+02 |  3 -0.00210  1.75100e+02
+  4  0.00639  1.92419e+02 |  5  0.03109  1.45411e+02 |  6  0.00163 -4.53107e+01
+  7 -0.00356 -7.18331e+01 |  8 -0.00069 -8.58775e+01 |  9 -0.03244  8.55890e+00
+ 10 -0.05124  8.15457e+01 | 11  0.04722 -1.01258e+02 | 12 -0.04138  7.93790e+01
+ 13 -0.05300  6.49549e+01 | 14 -0.05484  4.66460e+01 | 15 -0.01112 -9.64451e+01
+ 16 -0.04680  3.88664e+01 | 17 -0.04603  2.30702e+01 | 18 -0.03276  1.81707e+01
+ 19  0.10483 -4.93290e+00 | 20  0.04307 -2.95969e+01 | 21 -0.03126  5.44222e+01
+ 22 -0.03863  3.27810e+01 | 23 -0.04187  7.21092e+01 | 24  0.00549  3.58322e+01
+ 25 -0.02635  8.36839e+01 | 26  0.00622  5.30950e+01 | 27 -0.02424  1.16540e+01
+ 28  0.13250 -1.37293e+01 | 29  0.04309 -9.84081e+01 | 30 -0.01936 -8.19904e+01
+ 31 -0.01674 -5.05216e+01 | 32  0.18303 -2.62950e+02 | 33  0.03697 -6.68797e+00
+ 34 -0.06491  1.55382e+02 | 35 -0.04444  5.53569e+01 | 36 -0.01465 -2.98299e+01
+ 37  0.03467 -1.47017e+01 | 38 -0.01706  7.00278e+00 | 39 -0.01954  3.21335e+01
+ 40  0.01867  1.42115e+01 | 41  0.04062  6.59544e+01 | 42 -0.01526 -3.35187e+01
+ 43  0.05251  4.76378e+00 | 44  0.08064 -1.75440e+01 | 45 -0.04631  5.21420e+01
+ 46  0.00542 -1.93107e+01 | 47  0.12798 -1.78181e+02 | 48 -0.05268 -7.13415e+01
+ 49 -0.06284 -1.87368e+01 | 50 -0.01906 -8.99909e+00 | 51 -0.03549  1.43982e+02
+ 52 -0.11757  3.05649e+03 | 53  0.07584  2.17816e+02 | 54  0.92149 -8.84482e+00
+ 55 -0.07726  7.29540e+01 | 56  0.68025 -8.26749e+00 | 57  0.35449  4.77532e+02
+ 58 -0.37811  7.50471e+02 | 59  0.70988 -7.04922e+01 | 60  0.37696 -8.94100e+02
+ 61  0.14744 -4.62130e+02 | 62  0.08935  1.47757e+03 | 63 -0.13153  1.21348e+03
+ 64 -0.13022 -1.61978e+03 | 65 -0.04842 -1.59243e+03 | 66 -0.27889 -8.10230e+02
+ 67 -0.27221 -1.31753e+03 | 68  0.33788  1.10149e+03 | 69 -0.03770 -1.85492e+02
+ 70 -0.01465  8.20501e+02 | 71  0.09039  3.73878e+02 |
+Function minimizer not making progress ... is minimum attained?
+Minimprove criterion = 0.0000e+00
+
+ - final statistics:
+71 variables; iteration 4; function evaluation 38
+Function value -nan; maximum gradient component mag 5.3347e+03
+Exit code = 1;  converg criter 1.0000e-04
+Var    Value     Gradient |Var    Value     Gradient |Var    Value     Gradient
+  1  0.65816  5.33470e+03 |  2 -0.00220  1.00668e+02 |  3 -0.00210  1.75100e+02
+  4  0.00639  1.92419e+02 |  5  0.03109  1.45411e+02 |  6  0.00163 -4.53107e+01
+  7 -0.00356 -7.18331e+01 |  8 -0.00069 -8.58775e+01 |  9 -0.03244  8.55890e+00
+ 10 -0.05124  8.15457e+01 | 11  0.04722 -1.01258e+02 | 12 -0.04138  7.93790e+01
+ 13 -0.05300  6.49549e+01 | 14 -0.05484  4.66460e+01 | 15 -0.01112 -9.64451e+01
+ 16 -0.04680  3.88664e+01 | 17 -0.04603  2.30702e+01 | 18 -0.03276  1.81707e+01
+ 19  0.10483 -4.93290e+00 | 20  0.04307 -2.95969e+01 | 21 -0.03126  5.44222e+01
+ 22 -0.03863  3.27810e+01 | 23 -0.04187  7.21092e+01 | 24  0.00549  3.58322e+01
+ 25 -0.02635  8.36839e+01 | 26  0.00622  5.30950e+01 | 27 -0.02424  1.16540e+01
+ 28  0.13250 -1.37293e+01 | 29  0.04309 -9.84081e+01 | 30 -0.01936 -8.19904e+01
+ 31 -0.01674 -5.05216e+01 | 32  0.18303 -2.62950e+02 | 33  0.03697 -6.68797e+00
+ 34 -0.06491  1.55382e+02 | 35 -0.04444  5.53569e+01 | 36 -0.01465 -2.98299e+01
+ 37  0.03467 -1.47017e+01 | 38 -0.01706  7.00278e+00 | 39 -0.01954  3.21335e+01
+ 40  0.01867  1.42115e+01 | 41  0.04062  6.59544e+01 | 42 -0.01526 -3.35187e+01
+ 43  0.05251  4.76378e+00 | 44  0.08064 -1.75440e+01 | 45 -0.04631  5.21420e+01
+ 46  0.00542 -1.93107e+01 | 47  0.12798 -1.78181e+02 | 48 -0.05268 -7.13415e+01
+ 49 -0.06284 -1.87368e+01 | 50 -0.01906 -8.99909e+00 | 51 -0.03549  1.43982e+02
+ 52 -0.11757  3.05649e+03 | 53  0.07584  2.17816e+02 | 54  0.92149 -8.84482e+00
+ 55 -0.07726  7.29540e+01 | 56  0.68025 -8.26749e+00 | 57  0.35449  4.77532e+02
+ 58 -0.37811  7.50471e+02 | 59  0.70988 -7.04922e+01 | 60  0.37696 -8.94100e+02
+ 61  0.14744 -4.62130e+02 | 62  0.08935  1.47757e+03 | 63 -0.13153  1.21348e+03
+ 64 -0.13022 -1.61978e+03 | 65 -0.04842 -1.59243e+03 | 66 -0.27889 -8.10230e+02
+ 67 -0.27221 -1.31753e+03 | 68  0.33788  1.10149e+03 | 69 -0.03770 -1.85492e+02
+ 70 -0.01465  8.20501e+02 | 71  0.09039  3.73878e+02 |
+Estimating row 1 out of 71 for hessian
+Estimating row 2 out of 71 for hessian
+Estimating row 3 out of 71 for hessian
+Estimating row 4 out of 71 for hessian
+Estimating row 5 out of 71 for hessian
+Estimating row 6 out of 71 for hessian
+Estimating row 7 out of 71 for hessian
+Estimating row 8 out of 71 for hessian
+Estimating row 9 out of 71 for hessian
+Estimating row 10 out of 71 for hessian
+Estimating row 11 out of 71 for hessian
+Estimating row 12 out of 71 for hessian
+Estimating row 13 out of 71 for hessian
+Estimating row 14 out of 71 for hessian
+Estimating row 15 out of 71 for hessian
+Estimating row 16 out of 71 for hessian
+Estimating row 17 out of 71 for hessian
+Estimating row 18 out of 71 for hessian
+Estimating row 19 out of 71 for hessian
+Estimating row 20 out of 71 for hessian
+Estimating row 21 out of 71 for hessian
+Estimating row 22 out of 71 for hessian
+Estimating row 23 out of 71 for hessian
+Estimating row 24 out of 71 for hessian
+Estimating row 25 out of 71 for hessian
+Estimating row 26 out of 71 for hessian
+Estimating row 27 out of 71 for hessian
+Estimating row 28 out of 71 for hessian
+Estimating row 29 out of 71 for hessian
+Estimating row 30 out of 71 for hessian
+Estimating row 31 out of 71 for hessian
+Estimating row 32 out of 71 for hessian
+Estimating row 33 out of 71 for hessian
+Estimating row 34 out of 71 for hessian
+Estimating row 35 out of 71 for hessian
+Estimating row 36 out of 71 for hessian
+Estimating row 37 out of 71 for hessian
+Estimating row 38 out of 71 for hessian
+Estimating row 39 out of 71 for hessian
+Estimating row 40 out of 71 for hessian
+Estimating row 41 out of 71 for hessian
+Estimating row 42 out of 71 for hessian
+Estimating row 43 out of 71 for hessian
+Estimating row 44 out of 71 for hessian
+Estimating row 45 out of 71 for hessian
+Estimating row 46 out of 71 for hessian
+Estimating row 47 out of 71 for hessian
+Estimating row 48 out of 71 for hessian
+Estimating row 49 out of 71 for hessian
+Estimating row 50 out of 71 for hessian
+Estimating row 51 out of 71 for hessian
+Estimating row 52 out of 71 for hessian
+Estimating row 53 out of 71 for hessian
+Estimating row 54 out of 71 for hessian
+Estimating row 55 out of 71 for hessian
+Estimating row 56 out of 71 for hessian
+Estimating row 57 out of 71 for hessian
+Estimating row 58 out of 71 for hessian
+Estimating row 59 out of 71 for hessian
+Estimating row 60 out of 71 for hessian
+Estimating row 61 out of 71 for hessian
+Estimating row 62 out of 71 for hessian
+Estimating row 63 out of 71 for hessian
+Estimating row 64 out of 71 for hessian
+Estimating row 65 out of 71 for hessian
+Estimating row 66 out of 71 for hessian
+Estimating row 67 out of 71 for hessian
+Estimating row 68 out of 71 for hessian
+Estimating row 69 out of 71 for hessian
+Estimating row 70 out of 71 for hessian
+Estimating row 71 out of 71 for hessian
+Warning -- Hessian does not appear to be positive definite
+Hessian does not appear to be positive definite.
+size of file gradfil1.tmp = 0
+size of file gradfil2.tmp = 0
+size of file varssave.tmp = 0
+size of file cmpdiff.tmp = 0

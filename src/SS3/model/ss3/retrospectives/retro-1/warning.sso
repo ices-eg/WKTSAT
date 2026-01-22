@@ -1,0 +1,5 @@
+Warning 1 : At least one block pattern ends in endyr. Check the output parameter value time series to see if the values in forecast years are as intended.
+Warning 2 Adjustment:  recdev_end: 2025 > retro_yr: 2024 reset 
+Note 1 Suggestion: Are you sure you want so few early recrdevs? Better to include in range of main recdevs 4
+Note 2 Information: A revised protocol for the Fcast_yr specification is available and recommended.
+ 2 warnings  and 2 notes 

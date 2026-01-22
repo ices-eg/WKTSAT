@@ -1,0 +1,7 @@
+Warning 1 : At least one block pattern ends in endyr. Check the output parameter value time series to see if the values in forecast years are as intended.
+Note 1 Suggestion: Are you sure you want so few early recrdevs? Better to include in range of main recdevs 4
+Warning 2 : 1st iteration warning: catch logL > 50% total logL; check configuration; suggest start with larger R0
+Warning 3 : Final gradient: 15808.2 is larger than final_conv: 0.0001
+Warning 4 : Early recdev biasadj is >2 times ratio of rmse to sigmaR
+Note 2 Information: A revised protocol for the Fcast_yr specification is available and recommended.
+ 4 warnings  and 2 notes 
