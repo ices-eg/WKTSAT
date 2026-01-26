@@ -12,7 +12,11 @@
 
 # library(icesTAF)
 
+require(icesTAF)
+require(icesAdvice)
 require(r4ss)
+require(ss3diags)
+
 require(dplyr) # to be removed
 
 require(parallel)
@@ -23,7 +27,7 @@ doParallel::registerDoParallel(2)
 
 
 
-#==============================================================================
+#========================================================º======================
 # GLOBAL VARIABLES                                                         ----
 #==============================================================================
 
@@ -33,20 +37,24 @@ set.seed(1234)
 
 #! to be updated for each case study
 
-ref_dir <- file.path("src","SS3") #! UPDATE
-dtyr    <- 2024      # last year of data (assessment year - 1)
+main_dir <- getwd()
+ref_dir  <- file.path(main_dir, "src","SS3") #! UPDATE
+dtyr     <- 2024      # last year of data (assessment year - 1)
+nfleet   <- 1
 
 
 ## SS assessment files --------------------------------------------------------
 
-run <- "ss3"          # final assessment model folder (should be inside model folder)
+run        <- "ss3"               # final assessment model folder (should be inside model folder)
+ssexe_file <- "ss_3.30.22.1"  # NOTE : ss.exe for Windows / ss for Linux
+ssexe_dir  <- file.path("boot","initial","software")
 
 
 ## ICES reference points ------------------------------------------------------
 
-# Blim      <- 61563
-# Bpa       <- 78405
-Flim      <- 0.734	# not defined any more in ICES
+Blim      <- 61563
+Bpa       <- 78405
+Flim      <- 0.734	# not defined anymore in ICES
 # Fpa       <- 0.537
 Fmsy      <- 0.243
 FmsyLower <- 0.147  # MAP range Flower
@@ -56,9 +64,19 @@ FmsyUpper <- 0.370	# MAP range Fupper
 # TAC  <- xx # interim year TAC
 
 
+# Set model executable ----------------------------------------------------
+
+if(os.linux()) {
+  exe <- normalizePath(file.path(ref_dir, ssexe_dir, ssexe_file))
+} else if(os.windows()) {
+  exe <- normalizePath(file.path(ref_dir, ssexe_dir, paste0(ssexe_file,".exe")))
+} else {
+  stop()
+}
+
+
 ## Other variables
 intYr <- dtyr + 1
-
 
 
 #==============================================================================
@@ -69,16 +87,16 @@ mod_path <- file.path(ref_dir, "model", run)
 stf_path <- file.path(ref_dir, "model","stf")     # folder with STF files and results
 
 forecastTAC_dir <- file.path(stf_path,"stf_files")
-# fmult_dir     <- file.path(stf_path,"stf_files")
 fored_dir     <- file.path(stf_path, "info_models")
 tablefore_dir <- file.path(stf_path, "tables")
 plotfore_dir  <- file.path(stf_path, "plots")
 
-dir.create(path = stf_path, showWarnings = TRUE, recursive = TRUE)
-dir.create(path = forecastTAC_dir, showWarnings = TRUE, recursive = TRUE)
-dir.create(path = fored_dir, showWarnings = TRUE, recursive = TRUE)
-dir.create(path = tablefore_dir, showWarnings = TRUE, recursive = TRUE)
-dir.create(path = plotfore_dir, showWarnings = TRUE, recursive = TRUE)
+clean(stf_path)
+
+mkdir(forecastTAC_dir)
+mkdir(fored_dir)
+mkdir(tablefore_dir)
+mkdir(plotfore_dir)
 
 
 #==============================================================================
@@ -99,9 +117,9 @@ Naver <- 3 # number of average years
 # - (s1) 0 and FmsyLower, 
 # - (s2) FmsyLower+0.01 and FmsyUpper, and 
 # - (s3) FmsyUpper and Flim+0.05.
-s1 <- 50
-s2 <- 50
-s3 <- 50
+s1 <- 5#0
+s2 <- 5#0
+s3 <- 5#0
 
 ## intYr+2 use the multiplier for Fmsy not the previous sequence
 
@@ -176,13 +194,16 @@ save(fmult, Fmult_names, file = file.path(fored_dir, "fmult.RData"))
 ## create data for following forecast years using int year and Fmult
 
 for (i in 1:length(fmult)) {
+  
   fore_dat <- aux_fore <- fore_dat_int
+  
   # Forecast year (alternative Fs)
   for(j in 2:(Nfor-1)){
     aux_fore$Year <- endyear+j
     aux_fore$F    <- fmult[i]*fore_dat_int$F
     fore_dat <- rbind(fore_dat, aux_fore)
   }
+  
   # Last year Fmsy
   j <- Nfor
   aux_fore$Year <- endyear+j
@@ -198,6 +219,7 @@ for (i in 1:length(fmult)) {
   r4ss::SS_writeforecast(fore, dir = forecastTAC_dir, 
                          file = paste0("forecast_",Fmult_names[i], ".ss"), 
                          overwrite = TRUE, verbose = FALSE)
+  
 }
 
 
@@ -221,6 +243,9 @@ for(j in 1:length(tacs)){
   dir.tacN <- file.path(stf_path,tacs[j])
   dir.create(path=dir.tacN, showWarnings = T, recursive = T)
   
+  # # copy ss executable
+  # file.copy(file.path(ssexe_dir, ssexe_file), file.path(dir.tacN, ssexe_file))
+  
   # copy the SS base files in specific TAC subfolder
   copy_SS_inputs(dir.old = mod_path, dir.new = dir.tacN, create.dir = TRUE,
                  overwrite = TRUE, copy_par = TRUE, verbose = TRUE)
@@ -242,10 +267,12 @@ for(j in 1:length(tacs)){
   
 }
 
+# NOTE select one or the other depending on computation resources available
+
 ## If using parallel computing
 # mc.cores <- length(tacs) # set the number of cores as number of scenarios
 # parallel::mclapply( file.path(paste0(stf_path,"/",tacs)),
-#                     r4ss::run, extras = "-nohess -maxfn 0 -phase 99", exe = "ss", skipfinished = FALSE,
+#                     r4ss::run, extras = "-nohess -maxfn 0 -phase 99", exe = exe, skipfinished = FALSE,
 #                     mc.cores = mc.cores)
 
 ## Else
@@ -253,13 +280,15 @@ for (sc in 1:length(tacs)) {
   
   print(paste0("---- ", tacs[sc], " ----"))
   
-  command <- "ss -maxfn 0 -phase 99" # To run SS using ss.par information
+  command <- "-maxfn 0 -phase 99" # To run SS using ss.par information
   # command <- "ss -nohess -maxfn 0 -phase 99" # if not interested in pBlim (use this instead)
   
-  setwd(file.path(stf_path,tacs[sc]))
-  system(paste('ss.exe', command), intern = TRUE, invisible = TRUE)
+  # setwd(file.path(stf_path,tacs[sc]))
+  # system(paste(exe, command), intern = TRUE, invisible = TRUE)
+  # setwd(main_dir)
   
-  setwd(dir)
+  r4ss::run(dir = file.path(stf_path,tacs[sc]), exe = exe, extras = command, 
+            show_in_console = TRUE, skipfinished = FALSE)
   
 }
 
@@ -269,14 +298,20 @@ for (sc in 1:length(tacs)) {
 forecastModels <- SSgetoutput(dirvec=file.path(stf_path, Fmult_names))
 names(forecastModels) <- Fmult_names
 
-save(forecastModels, sc.prob, file=file.path(fored_dir, "forecast.RData"))
+save(forecastModels, file=file.path(fored_dir, "forecast.RData"))
 
 
 #==============================================================================
 # 3) Summarise outputs                                                     ----
 #==============================================================================
 
-forecastSummary <- SSsummarize(forecastModels)
+foreSum   <- r4ss::SSsummarize(forecastModels)
+
+foreOut <- foreMVLN <- list()
+for (i in 1:length(fmult)) { 
+  foreOut[[Fmult_names[i]]]  <- r4ss::SS_output(dir = file.path(stf_path, Fmult_names[i]), forecast=TRUE)
+  foreMVLN[[Fmult_names[i]]] <- ss3diags::SSdeltaMVLN(foreOut[[Fmult_names[i]]] , mc=500, catch.type='Exp', plot=FALSE, verbose=FALSE) #! PENDING
+}
 
 
 # Forecast tables -------------------------------------------------------------
@@ -301,18 +336,18 @@ fmultTab$Fmult <- round(fmult,4)
 
 # SSB -------------------------------------------------------------------------
 
-SSB   <- as.data.frame(forecastSummary[["SpawnBio"]])
-SSBiy <- SSB %>% filter(Yr == intYr+1) %>% .[1]
-SSBly <- SSB %>% filter(Yr == intYr+2) %>% select(-Label, -Yr) %>% unlist()
+SSB   <- as.data.frame(foreSum[["SpawnBio"]])
+SSBiy <- SSB[which(SSB$Yr == intYr + 1), 1]
+SSBly <- unlist(SSB[which(SSB$Yr == intYr + 2), !(names(SSB) %in% c("Label", "Yr"))])
 
 fmultTabIY[,paste0("SSB",intYr+1)] <- SSBiy
-fmultTab[,paste0("SSB",intYr+2)] <- SSBly
+fmultTab[,paste0("SSB",intYr+2)]   <- SSBly
 
 # probablity below Blim
 
-SSBly.sd <- forecastSummary[["SpawnBioSD"]] %>% filter(Yr == intYr+2) %>% select(-Label, -Yr) %>% unlist()
-if (exists("sc.prob"))
-  SSBly.sd[-sc.prob] <- NA
+SSB.sd <- foreSum[["SpawnBioSD"]] 
+
+SSBly.sd <- unlist(SSB.sd[which(SSB.sd$Yr == intYr+2), !(names(SSB.sd) %in% c("Label", "Yr"))])
 
 # - lognormal distribution
 
@@ -325,19 +360,19 @@ fmultTab[,paste0("pBlim_",intYr+2)] <- plnorm(Blim, mean = logSSBly.mu, sd = log
 # F ----------------------------------------------------------------------------
 # Note that F is from intermediate year
 
-Fvalue <- as.data.frame(forecastSummary[["Fvalue"]])
+Fvalue <- as.data.frame(foreSum[["Fvalue"]])
 
-fmultTabIY[,paste0("F",intYr)] <- Fvalue %>% filter(Yr == intYr) %>% .[1]
-fmultTab[,paste0("F",intYr+1)] <- Fvalue %>% filter(Yr == intYr+1) %>% select(-Label, -Yr) %>% unlist()
+fmultTabIY[,paste0("F",intYr)] <- Fvalue[which(Fvalue$Yr == intYr), 1]
+fmultTab[,paste0("F",intYr+1)] <- unlist(Fvalue[which(Fvalue$Yr == intYr+1), !(names(Fvalue) %in% c("Label", "Yr"))])
 
 
 # Rec -------------------------------------------------------------------------
 # Note constant recruitment!
 
-Recr <- as.data.frame(forecastSummary[["recruits"]])
+Recr <- as.data.frame(foreSum[["recruits"]])
 
-fmultTabIY[,paste0("Rec",intYr)]   <- Recr %>% filter(Yr == intYr) %>% .[1]
-fmultTabIY[,paste0("Rec",intYr+1)] <- Recr %>% filter(Yr == intYr+1) %>% .[1]
+fmultTabIY[,paste0("Rec",intYr)]   <- Recr[which(Recr$Yr == intYr), 1]
+fmultTabIY[,paste0("Rec",intYr+1)] <- Recr[which(Recr$Yr == intYr+1), 1]
 
 
 # Catches ----------------------------------------------------------------------
@@ -350,48 +385,93 @@ for (i in 1:length(Fmult_names)){
   
   ## Catch
   
-  catch <- as_tibble(output$timeseries) %>% filter(Era == "FORE") %>% 
-    select("Yr", "Seas", starts_with("obs_cat"), starts_with("retain(B)"), starts_with("dead(B)")) 
-  names(catch) <- c('year', 'season', paste('LanObs', fltnms[1:nfleet], sep = "_"), paste('LanEst', fltnms[1:nfleet], sep = "_"),
-                    paste('CatEst', fltnms[1:nfleet], sep = "_"))
+  cat_df <- output$timeseries
   
-  aux1 <- (catch %>% select(starts_with('CatEst'))) - (catch %>% select(starts_with('LanEst')))
-  names(aux1) <- paste('DisEst', fltnms[1:nfleet], sep = "_")
+  catch <- cat_df[which(cat_df$Era == "FORE"), 
+                  c("Yr",
+                    "Seas",
+                    grep("^obs_cat", names(cat_df), value = TRUE),
+                    grep("^retain\\(B\\)", names(cat_df), value = TRUE),
+                    grep("^dead\\(B\\)", names(cat_df), value = TRUE)), 
+                  drop = FALSE]
   
-  catch <- catch %>% bind_cols(aux1)
-  catch <- catch %>%  
-    tidyr::pivot_longer(cols = names(catch)[-(1:2)], names_to = 'id', values_to = 'value') %>% 
-    mutate(indicator = substr(id,1,6), fleet = substr(id, 8, nchar(id))) %>% 
-    select('year', 'season', 'fleet', 'indicator', 'value') %>% 
-    mutate(year = as.factor(year))
+  names(catch) <- c("year",
+                    "season",
+                    paste("LanObs", fltnms[1:nfleet], sep = "_"),
+                    paste("LanEst", fltnms[1:nfleet], sep = "_"),
+                    paste("CatEst", fltnms[1:nfleet], sep = "_"))
   
-  Landings <- catch %>% filter(indicator=="LanEst") %>% 
-    group_by(year) %>% summarise(land=sum(value))
   
-  Discards <- catch %>% filter(indicator=="DisEst") %>% 
-    group_by(year) %>% summarise(disc=sum(value))
+  # - discards
+  cat_cols <- grep("^CatEst", names(catch), value = TRUE)
+  lan_cols <- grep("^LanEst", names(catch), value = TRUE)
+  aux1 <- catch[, cat_cols, drop = FALSE] - catch[, lan_cols, drop = FALSE]
+  names(aux1) <- paste("DisEst", fltnms[1:nfleet], sep = "_")
   
-  Cat <- catch %>% filter(indicator=="CatEst") %>% 
-    group_by(year) %>% summarise(cat=sum(value))
+  catch <- cbind(catch, aux1)
   
-  fmultTabIY[,paste0("Catches",intYr)]  <- Cat %>% filter(year == intYr) %>% .$cat
-  fmultTabIY[,paste0("Landings",intYr)] <- Landings %>% filter(year == intYr) %>% .$land
-  fmultTabIY[,paste0("Discards",intYr)] <- Discards %>% filter(year == intYr) %>% .$disc
+  value_cols <- names(catch)[-(1:2)]
   
-  fmultTab[i,paste0("Catches",intYr+1)]  <- Cat %>% filter(year == intYr+1) %>% .$cat
-  fmultTab[i,paste0("Landings",intYr+1)] <- Landings %>% filter(year == intYr+1) %>% .$land
-  fmultTab[i,paste0("Discards",intYr+1)] <- Discards %>% filter(year == intYr+1) %>% .$disc
+  catch_long <- reshape(catch, 
+                        direction = "long", 
+                        idvar = c("year", "season"), 
+                        varying = value_cols,
+                        v.names = "value",
+                        timevar = "id", 
+                        times = value_cols,
+                        sep       = "")
+  row.names(catch_long) <- NULL
   
-  fmultTab[i,paste0("Catches",intYr+2)]  <- Cat %>% filter(year == intYr+2) %>% .$cat
+  catch_long$indicator <- substr(catch_long$id, 1, 6)
+  catch_long$fleet     <- substr(catch_long$id, 8, nchar(catch_long$id))
+  catch_long$year      <- as.factor(catch_long$year)
+  
+  catch_long <- catch_long[, c("year", "season", "fleet", "indicator", "value")]
+  
+  Landings <- aggregate(value ~ year,
+                        data = catch_long[catch_long$indicator == "LanEst", ],
+                        FUN = sum)
+  names(Landings)[2] <- "land"
+  
+  # NOTE: if no discards in any of the fleets --> set discards to 0
+  dd <- catch_long[catch_long$indicator == "DisEst", ]
+  if (nrow(dd)==0) {
+    Discards <- within(Landings, {disc <- 0; land <- NULL})
+  } else {
+    Discards <- aggregate(value ~ year,
+                          data = catch_long[catch_long$indicator == "DisEst", ],
+                          FUN = sum)
+    names(Discards)[2] <- "disc"
+  }
+  
+  Cat <- aggregate(value ~ year,
+    data = catch_long[catch_long$indicator == "CatEst", ],
+    FUN = sum)
+  names(Cat)[2] <- "cat"
+  
+  fmultTabIY[,paste0("Catches",intYr)]  <- Cat[which(Cat$year == intYr),"cat"]
+  fmultTabIY[,paste0("Landings",intYr)] <- Landings[which(Landings$year == intYr),"land"]
+  fmultTabIY[,paste0("Discards",intYr)] <- Discards[which(Discards$year == intYr),"disc"]
+  
+  fmultTab[i,paste0("Catches",intYr+1)]  <- Cat[which(Cat$year == intYr+1),"cat"]
+  fmultTab[i,paste0("Landings",intYr+1)] <- Landings[which(Landings$year == intYr+1),"land"]
+  fmultTab[i,paste0("Discards",intYr+1)] <- Discards[which(Discards$year == intYr+1),"disc"]
+  
+  fmultTab[i,paste0("Catches",intYr+2)]  <- Cat[which(Cat$year == intYr+2),"cat"]
   
 }
 
 
 # ICES rounding  --------------------------------------------------------------
 
-fmultTabIYR <- fmultTabIY %>% 
-  mutate(across(starts_with("F"), ~ as.numeric(icesRound(.x))), 
-         across(!starts_with("F"), ~ round(.x)))
+fmultTabIYR <- fmultTabIY
+
+F_cols <- grepl("^F", names(fmultTabIYR))
+
+fmultTabIYR[F_cols]  <- lapply(fmultTabIYR[F_cols], 
+                               function(x) suppressWarnings(as.numeric(icesRound(x))))
+fmultTabIYR[!F_cols] <- lapply(fmultTabIYR[!F_cols], 
+                               function(x) if (is.numeric(x)) round(x) else x)
 
 write.csv(fmultTabIY, file.path(tablefore_dir, "fmultTabIYmediate_year.csv"), row.names = FALSE)
 write.csv(fmultTabIYR, file.path(tablefore_dir, "fmultTabIYmediate_year_icesRound.csv"), row.names = FALSE)
@@ -587,15 +667,26 @@ write.csv (stfTab, file.path(tablefore_dir, "catchOptTab_runs.csv"), row.names =
 # CATCH OPTION TABLE - Plots                                               ----
 #==============================================================================
 
-png(height=600, width=600,  file=file.path(plotfore_dir, "ShortTermProj.png")) #file.path(plotdir_stf, "plot_stf.png")
+# Renaming function
+
+
+rename_colnam <- function(df, pattern, new_name) {
+  idx <- which(grepl(pattern, names(df)))
+  if (length(idx) != 1L) stop(sprintf("Expected one match for '%s', got %d", pattern, length(idx)))
+  names(df)[idx] <- new_name
+  df
+}
+
+fmultTab <- rename_colnam(fmultTab, paste0("^SSB",      catYr + 1, "$"), "SSB")
+fmultTab <- rename_colnam(fmultTab, paste0("^F",        catYr,     "$"), "F")
+fmultTab <- rename_colnam(fmultTab, paste0("^Catches",  catYr,     "$"), "Catch")
+fmultTab <- rename_colnam(fmultTab, paste0("^Landings", catYr,     "$"), "Yield")
+# fmultTab <- fmultTab[which(fmultTab$Fmult < 4),] # NOTE: cap if necessary
+
+
+png(height=600, width=600,  file=file.path(plotfore_dir, "ShortTermProj.png"))
 
   par(mfrow=c(2,1), mar=c(3,3,2,2), mgp=c(2,0.8,0), oma=c(2,1.5,1.5,1.5))
-  
-  fmultTab <- fmultTab %>% 
-    rename(SSB =  matches(paste0("SSB",catYr+1)), F =  matches(paste0("F",catYr)), 
-           Catch = matches(paste0("Catches",catYr)), Yield =  matches(paste0("Landings",catYr)))
-  
-  # fmultTab <- fmultTab %>% filter(Fmult < 4)
   
   ### Plot F-Yield ---------------------------------------------------------------
   plot(fmultTab$Fmult, fmultTab$Yield, xlab="F mult", ylab=paste0("Yield ", intYr), type="l",lty=2, lwd= 1.5)
