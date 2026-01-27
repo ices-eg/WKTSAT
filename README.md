@@ -30,3 +30,17 @@ Additional tasks:
 
 Consider scripts -> functions, candidates are:
 * output_SAG.R
+
+---
+### Structure of the code
+
+####src/SS3/data.R
+Prepares the data to run the assessment, saved in the src/SS3/data folder as CSV files and RData file.
+
+####src/SS3/model.R
+RUN SS3 model fit, retrospective and jitter
+
+####src/SS3/model_forecast.R
+RUN the forecast
+
+
