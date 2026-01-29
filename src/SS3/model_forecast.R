@@ -12,12 +12,12 @@
 
 # library(icesTAF)
 
-require(icesTAF)
-require(icesAdvice)
-require(r4ss)
-require(ss3diags)
-
-require(dplyr) # to be removed
+require(icesTAF)     # install.packages("icesTAF")
+require(icesAdvice)  # install.packages("icesAdvice")
+require(r4ss)        # remotes::install_github("r4ss/r4ss")
+require(ss3diags)    # remotes::install_github("nmfs-ost/ss3diags") or remotes::install_github("jabbamodel/ss3diags")? 
+                     # NOTE used jabbamodel one
+require(ss3om)       # remotes::install_github("flr/ss3om")
 
 require(parallel)
 require(doParallel)
@@ -27,7 +27,7 @@ doParallel::registerDoParallel(2)
 
 
 
-#========================================================º======================
+#==============================================================================
 # GLOBAL VARIABLES                                                         ----
 #==============================================================================
 
@@ -55,13 +55,14 @@ ssexe_dir  <- file.path("boot","initial","software")
 Blim      <- 61563
 Bpa       <- 78405
 Flim      <- 0.734	# not defined anymore in ICES
-# Fpa       <- 0.537
+Fpa       <- 0.537
 Fmsy      <- 0.243
 FmsyLower <- 0.147  # MAP range Flower
 FmsyUpper <- 0.370	# MAP range Fupper
 # Bmsy      <- 78405
 
-# TAC  <- xx # interim year TAC
+TAC       <- 55000 # intermediate year TAC
+TACadvice <- 53000 # intermediate year TAC advice
 
 
 # Set model executable ----------------------------------------------------
@@ -117,9 +118,9 @@ Naver <- 3 # number of average years
 # - (s1) 0 and FmsyLower, 
 # - (s2) FmsyLower+0.01 and FmsyUpper, and 
 # - (s3) FmsyUpper and Flim+0.05.
-s1 <- 5#0
-s2 <- 5#0
-s3 <- 5#0
+s1 <- 50
+s2 <- 50
+s3 <- 50
 
 ## intYr+2 use the multiplier for Fmsy not the previous sequence
 
@@ -143,7 +144,7 @@ replist <- SS_output(dir = mod_path, verbose=TRUE, printstats=TRUE) ## read
 ## prepare intermediate year data 
 dat <- replist$exploitation
 # keep year, seas and fleets
-dat <- dat %>% select(-Seas_dur, -F_std, -annual_F, -annual_M)
+dat <- dat[,!names(dat) %in% c("Seas_dur", "F_std", "annual_F", "annual_M"), drop = FALSE]
 # head(dat) 
 
 # Number of forecast years
@@ -152,9 +153,10 @@ Nfor <- fore$Nforecastyrs
 ## average of the last 3 years across seasons and fleets
 startyear <- max(dat$Yr)-Nfor-Naver+1
 endyear   <- max(dat$Yr)-Nfor
-data_int <- dat %>% filter(Yr>=startyear & Yr<=endyear) %>% 
-  select(-Yr) %>% group_by(Seas) %>% 
-  summarise_all(mean)
+
+data_int <- dat[which(dat$Yr>=startyear & dat$Yr<=endyear),]
+data_int$Yr <- NULL
+data_int <- aggregate(. ~ Seas, data = data_int, FUN = mean)
 
 ## input intermediate year data
 dimen <- dim(data_int)
@@ -168,9 +170,9 @@ fore_dat_int$F     <- as.vector(as.matrix(data_int[,-which(names(data_int)=="Sea
 
 # From reference points html
 datmul <- replist$exploitation
-datmul <- datmul %>% filter((Yr >= intYr-Naver) & (Yr <= intYr-1)) %>% 
-  filter(!is.na(F_std)) %>% # whole year F stored in 1st season
-  select(Yr, F_std)
+datmul <- datmul[which(datmul$Yr >= intYr-Naver & datmul$Yr<=intYr-1 &
+                         !is.na(datmul$F_std)), # whole year F stored in 1st season
+                 c("Yr", "F_std")]
 
 # Mean of all Naver years
 fsq <- mean(datmul$F_std)
@@ -308,9 +310,12 @@ save(forecastModels, file=file.path(fored_dir, "forecast.RData"))
 foreSum   <- r4ss::SSsummarize(forecastModels)
 
 foreOut <- foreMVLN <- list()
+mcn <- 500  # number of Monte-Carlo simulations
+
 for (i in 1:length(fmult)) { 
   foreOut[[Fmult_names[i]]]  <- r4ss::SS_output(dir = file.path(stf_path, Fmult_names[i]), forecast=TRUE)
-  foreMVLN[[Fmult_names[i]]] <- ss3diags::SSdeltaMVLN(foreOut[[Fmult_names[i]]] , mc=500, catch.type='Exp', plot=FALSE, verbose=FALSE) #! PENDING
+  foreMVLN[[Fmult_names[i]]] <- ss3diags::SSdeltaMVLN(foreOut[[Fmult_names[i]]], years = intYr+2, 
+                                                      mc=mcn, catch.type='Exp', plot=FALSE, verbose=FALSE)
 }
 
 
@@ -343,18 +348,20 @@ SSBly <- unlist(SSB[which(SSB$Yr == intYr + 2), !(names(SSB) %in% c("Label", "Yr
 fmultTabIY[,paste0("SSB",intYr+1)] <- SSBiy
 fmultTab[,paste0("SSB",intYr+2)]   <- SSBly
 
-# probablity below Blim
+# probability below Blim
 
 SSB.sd <- foreSum[["SpawnBioSD"]] 
 
 SSBly.sd <- unlist(SSB.sd[which(SSB.sd$Yr == intYr+2), !(names(SSB.sd) %in% c("Label", "Yr"))])
 
-# - lognormal distribution
 
-logSSBly.mu    <- log(SSBly^2 / sqrt(SSBly^2 + SSBly.sd^2))
-logSSBly.sigma <- sqrt(log(1 + SSBly.sd^2/SSBly^2))
+# - mvln approximation
+fmultTab[,paste0("pBlim_",intYr+2)] <- sapply(foreMVLN, function(x) sum(x$kb$SSB < Blim)/mcn)
 
-fmultTab[,paste0("pBlim_",intYr+2)] <- plnorm(Blim, mean = logSSBly.mu, sd = logSSBly.sigma)
+# # - lognormal distribution
+# logSSBly.mu    <- log(SSBly^2 / sqrt(SSBly^2 + SSBly.sd^2))
+# logSSBly.sigma <- sqrt(log(1 + SSBly.sd^2/SSBly^2))
+# fmultTab[,paste0("pBlim_",intYr+2)] <- plnorm(Blim, mean = logSSBly.mu, sd = logSSBly.sigma)
 
 
 # F ----------------------------------------------------------------------------
@@ -387,7 +394,7 @@ for (i in 1:length(Fmult_names)){
   
   cat_df <- output$timeseries
   
-  catch <- cat_df[which(cat_df$Era == "FORE"), 
+  catch <- cat_df[which(cat_df$Yr >= intYr), #which(cat_df$Era == "FORE"), 
                   c("Yr",
                     "Seas",
                     grep("^obs_cat", names(cat_df), value = TRUE),
@@ -412,40 +419,40 @@ for (i in 1:length(Fmult_names)){
   
   value_cols <- names(catch)[-(1:2)]
   
-  catch_long <- reshape(catch, 
-                        direction = "long", 
-                        idvar = c("year", "season"), 
-                        varying = value_cols,
-                        v.names = "value",
-                        timevar = "id", 
-                        times = value_cols,
-                        sep       = "")
-  row.names(catch_long) <- NULL
+  catch <- reshape(catch, 
+                   direction = "long", 
+                   idvar = c("year", "season"), 
+                   varying = value_cols,
+                   v.names = "value",
+                   timevar = "id", 
+                   times = value_cols,
+                   sep       = "")
+  row.names(catch) <- NULL
   
-  catch_long$indicator <- substr(catch_long$id, 1, 6)
-  catch_long$fleet     <- substr(catch_long$id, 8, nchar(catch_long$id))
-  catch_long$year      <- as.factor(catch_long$year)
+  catch$indicator <- substr(catch$id, 1, 6)
+  catch$fleet     <- substr(catch$id, 8, nchar(catch$id))
+  catch$year      <- as.factor(catch$year)
   
-  catch_long <- catch_long[, c("year", "season", "fleet", "indicator", "value")]
+  catch <- catch[, c("year", "season", "fleet", "indicator", "value")]
   
   Landings <- aggregate(value ~ year,
-                        data = catch_long[catch_long$indicator == "LanEst", ],
+                        data = catch[catch$indicator == "LanEst", ],
                         FUN = sum)
   names(Landings)[2] <- "land"
   
-  # NOTE: if no discards in any of the fleets --> set discards to 0
-  dd <- catch_long[catch_long$indicator == "DisEst", ]
-  if (nrow(dd)==0) {
-    Discards <- within(Landings, {disc <- 0; land <- NULL})
-  } else {
+  # # NOTE: if no discards in any of the fleets --> set discards to 0
+  # dd <- catch[catch$indicator == "DisEst", ]
+  # if (nrow(dd)==0) {
+  #   Discards <- within(Landings, {disc <- 0; land <- NULL})
+  # } else {
     Discards <- aggregate(value ~ year,
-                          data = catch_long[catch_long$indicator == "DisEst", ],
+                          data = catch[catch$indicator == "DisEst", ],
                           FUN = sum)
     names(Discards)[2] <- "disc"
-  }
+  # }
   
   Cat <- aggregate(value ~ year,
-    data = catch_long[catch_long$indicator == "CatEst", ],
+    data = catch[catch$indicator == "CatEst", ],
     FUN = sum)
   names(Cat)[2] <- "cat"
   
@@ -597,20 +604,40 @@ df1 <- rbind(df1, interpolatefmultTab(colName=paste0("Catches",intYr+1),
 #   df1 <- rbind(df1, interpolatefmultTab(colName= paste0("Catches",intYr+1), TAC*1.2, "MP TAC*1.2 (7836)", fmultTab))
 # }
 
-df1 <- df1 %>% mutate(Fland = !!as.name(paste0("F",catYr)) * !!as.name(paste0("Landings",catYr))/!!as.name(paste0("Catches",catYr)),
-                      Fdisc = !!as.name(paste0("F",catYr)) * !!as.name(paste0("Discards",catYr))/!!as.name(paste0("Catches",catYr))) %>% 
-  rename(!!paste0("Fland",intYr+1) := Fland, !!paste0("Fdisc",intYr+1) := Fdisc) %>% 
-  mutate_at(vars(-paste0("pBlim_",intYr+2)), ~replace(., is.na(.), 0)) # keep NA for cases without Hessian runs (i.e. only values for sc.prob)
+# Fland & Fdisc
+
+f_col      <- paste0("F", catYr)
+ssb_col    <- paste0("SSB", ssbYr)
+land_col   <- paste0("Landings", catYr)
+disc_col   <- paste0("Discards", catYr)
+catch_col  <- paste0("Catches",  catYr)
+
+df1[[paste0("Fland", intYr + 1)]] <- df1[[f_col]] * df1[[land_col]] / df1[[catch_col]]
+df1[[paste0("Fdisc", intYr + 1)]] <- df1[[f_col]] * df1[[disc_col]] / df1[[catch_col]]
+
+for (nm in names(df1)[!names(df1) %in% paste0("pBlim_", intYr + 2)]) { 
+  # keep NA for cases without Hessian runs (i.e. only values for sc.prob)
+  idx <- is.na(df1[[nm]])
+  if (any(idx)) df1[[nm]][idx] <- 0
+}
 
 # Reformat
 
-df2 <- df1 %>% mutate(SSBchg = (!!as.name(paste0("SSB",ssbYr))/SSBint-1)*100, 
-                      ADVchg = (!!as.name(paste0("Catches",catYr))/TACadvice-1)*100, 
-                      TACchg = (!!as.name(paste0("Catches",catYr))/TAC-1)*100) %>% 
-  mutate_at(vars(-paste0("pBlim_",intYr+2)), ~replace(., is.na(.), 0)) %>% # keep NA for cases without Hessian runs (i.e. only values for sc.prob)
-  select(paste0("Catches",catYr), paste0("Landings",catYr), paste0("Discards",catYr), 
-         paste0("F",catYr), paste0("Fland",catYr), paste0("Fdisc",catYr), 
-         paste0("SSB",ssbYr), SSBchg, ADVchg, TACchg, paste0("pBlim_",ssbYr))
+df2 <- df1
+df2[["SSBchg"]] <- (df1[[ssb_col]] / SSBint - 1) * 100
+df2[["ADVchg"]] <- (df1[[catch_col]] / TACadvice - 1) * 100
+df2[["TACchg"]] <- (df1[[catch_col]] / TAC - 1) * 100
+
+for (nm in names(df2)[!names(df2) %in% paste0("pBlim_", intYr + 2)]) {
+  # keep NA for cases without Hessian runs (i.e. only values for sc.prob)
+  idx <- is.na(df2[[nm]])
+  if (any(idx)) df2[[nm]][idx] <- 0
+}
+
+
+df2 <- df2[,c(paste0("Catches",catYr), paste0("Landings",catYr), paste0("Discards",catYr), 
+              paste0("F",catYr), paste0("Fland",catYr), paste0("Fdisc",catYr), 
+              paste0("SSB",ssbYr), "SSBchg", "ADVchg", "TACchg", paste0("pBlim_",ssbYr))]
 
 write.csv (df2, file.path(tablefore_dir,"catchOptTab.csv"), row.names = TRUE) # keep row.names, as correspond to scenarios
 
@@ -629,6 +656,18 @@ write.csv (df2, file.path(tablefore_dir, "catchOptTab_ICESround.csv"), row.names
 
 # Reformat for report - rename columns
 
+# stfTab <- fmultTab %>% 
+#   mutate(Fland = !!as.name(paste0("F",intYr+1)) * 
+#            !!as.name(paste0("Landings",intYr+1))/!!as.name(paste0("Catches",intYr+1)), 
+#          Fdisc = !!as.name(paste0("F",intYr+1)) * 
+#            !!as.name(paste0("Discards",intYr+1))/!!as.name(paste0("Catches",intYr+1))) %>% 
+#   mutate_at(vars(-paste0("pBlim_",intYr+2)), ~replace(., is.na(.), 0)) %>% # keep NA for cases without Hessian runs (i.e. only values for sc.prob)
+#   select(Fmult, paste0("F",intYr+1), Fland, Fdisc, 
+#          paste0("Catches",intYr+1), paste0("Landings",intYr+1), paste0("Discards",intYr+1), 
+#          paste0("SSB",intYr+2), paste0("pBlim_",intYr+2)) %>% 
+#   rename(!!paste0("Fland",intYr+1) := Fland, !!paste0("Fdisc",intYr+1) := Fdisc)
+
+
 stfTab <- fmultTab %>% 
   mutate(Fland = !!as.name(paste0("F",intYr+1)) * 
            !!as.name(paste0("Landings",intYr+1))/!!as.name(paste0("Catches",intYr+1)), 
@@ -641,12 +680,70 @@ stfTab <- fmultTab %>%
   rename(!!paste0("Fland",intYr+1) := Fland, !!paste0("Fdisc",intYr+1) := Fdisc)
 
 
+
+# build_stfTab: function to create STF table for the report
+# - df    : data frame with STF results for alternative F multipliers
+# - intYr : intermediate year
+build_stfTab <- function(df, intYr) {
+  
+  yr1 <- intYr + 1
+  yr2 <- intYr + 2
+  
+  f_col       <- paste0("F", yr1)
+  catches_col <- paste0("Catches", yr1)
+  landings_col<- paste0("Landings", yr1)
+  discards_col<- paste0("Discards", yr1)
+  ssb_col     <- paste0("SSB", yr2)
+  pblim_col   <- paste0("pBlim_", yr2)
+  
+  # Check required columns
+  req_col  <- c("Fmult", f_col, catches_col, landings_col, discards_col, ssb_col, pblim_col)
+  miss_col <- req_col[!req_col %in% names(df)]
+  if (length(miss_col) > 0)
+    stop(paste("Columns missing in 'fmultTab': ", paste(names(df)[miss_col], collapse = ", ")))
+  
+  # Calculate Fland & Fdisc
+  df[["Fland"]] <- df[[f_col]] * df[[landings_col]] / df[[catches_col]]
+  df[["Fdisc"]] <- df[[f_col]] * df[[discards_col]] / df[[catches_col]]
+  
+  # If Catches == 0 --> Fland/Fdisc = 0 (instead of Inf)
+  zero_c <- which(is.finite(df[[catches_col]]) & df[[catches_col]] == 0)
+  if (length(zero_c) > 0)
+    df[zero_c, "Fland"] <- df[zero_c, "Fdisc"] <- 0
+  
+  # Replace NAs (except for pBlim)
+  for (cn in grep("pBlim_", names(df), value = TRUE, invert = TRUE)) {
+    na_rows <- which(is.na(df[[cn]]))
+    if (length(na_rows) > 0) {
+      df[na_rows, cn] <- 0
+    }
+  }
+  
+  # Select and rename columns
+  out <- df[, c("Fmult", f_col, "Fland", "Fdisc", catches_col, 
+                landings_col, discards_col, ssb_col, pblim_col)]
+  
+  names(out)[names(out) == "Fland"] <- paste0("Fland", yr1)
+  names(out)[names(out) == "Fdisc"] <- paste0("Fdisc", yr1)
+  
+  out
+  
+}
+
+stfTab <- build_stfTab(fmultTab, intYr)
+
+
 # Incorporate Advice Sheet values
 
-stfTab <- stfTab %>% mutate(scenario = "") %>% 
-  filter(Fmult != 0) %>% # already in df1
-  bind_rows(df1 %>% select(-paste0("Catches",intYr+2)) %>% mutate(scenario = rownames(df1))) %>% 
-  arrange(Fmult)
+stfTab0 <- stfTab[stfTab$Fmult != 0,]
+stfTab0[["scenario"]] <- ""
+
+df0 <- df1
+df0[[paste0("Catches", intYr + 2)]] <- NULL
+df0[["scenario"]] <- rownames(df1)
+
+stfTab <- rbind(stfTab0, df0)
+stfTab <- stfTab[order(stfTab$Fmult),]
 
 
 # Reformat for report - rounding
