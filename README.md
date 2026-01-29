@@ -41,6 +41,6 @@ Prepares the data to run the assessment, saved in the src/SS3/data folder as CSV
 RUN SS3 model fit, retrospective and jitter
 
 ####src/SS3/model_forecast.R
-RUN the forecast
+RUN the short-term forecast using SS3 (grid of F-multipliers relative to the Fsq to cover alternative scenarios in the catch option table) and generate default tables and figures for the advice sheet and the report.
 
 
